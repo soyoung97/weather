@@ -21,16 +21,28 @@ sudo docker run -d -p 8887:8887 --gpus all msyoon8/weather:latest python3 home/K
 
 ![ex1](./ex1.png)
 input: 전기간 전지점 일단위 최고온도 3개
-output SQL: ```
+output SQL: 
+
+```sql
 SELECT * FROM ( SELECT TO_CHAR(T.tm,'YYYYMMDD')|| ' ' ||TO_CHAR(T.TA_MAX_TM ,'0000') AS 관측시각 ,S. STN_KO , S.STN_ID , TA_MAX AS 기온 , ROW_NUMBER() OVER (PARTITION BY T.STN_ID ORDER BY TA_MAX desc) TNRW FROM SFC_DAY_TA T , ( SELECT * FROM ( SELECT S.* ,ROW_NUMBER() OVER (PARTITION BY STN_ID ORDER BY TM_ED DESC ) rnk FROM STN_AWS S ) WHERE RNK = 1 ) S WHERE 1=1 AND T.STN_ID = S.STN_ID AND TA_MAX IS NOT NULL ) M , (SELECT STN_ID , DENSE_RANK() OVER ( ORDER BY TA_MAX desc) TMRN FROM (SELECT TM , STN_ID , TA_MAX, RANK() OVER ( PARTITION BY STN_ID ORDER BY TA_MAX desc) TRN FROM SFC_DAY_TA DT WHERE TA_MAX IS NOT NULL ) SDT WHERE TRN = 1 ) SDT2 WHERE TNRW <= 3 AND M.STN_ID = SDT2.STN_ID ORDER BY TMRN ;
 ```
-output URL: `일기도_위험기상?동적선택1=전지구모델비교&동적선택2=KLAPS&동적버튼1=KIM전구&정적입력='202004180000`
+
+output URL: `일기도_위험기상?동적선택1=전지구모델비교&동적선택2=KLAPS&동적버튼1=KIM전구&정적입력='202004180000'`
+
+
 
 ![ex2](./ex2.png)
+
 input: 당일(2021년 1월 24일) 전지점 일단위 최고온도 30개
-output SQL: ```
+
+output SQL: 
+
+``` SQL
 SELECT * FROM ( SELECT TO_CHAR(T.tm,'YYYYMMDD')|| ' ' ||TO_CHAR(T.TA_MAX_TM ,'0000') AS 관측시각 ,S. STN_KO , S.STN_ID , TA_MAX AS 기온 , DENSE_RANK() OVER ( ORDER BY TA_MAX desc) TNRW FROM SFC_DAY_TA T , ( SELECT * FROM ( SELECT S.* ,ROW_NUMBER() OVER (PARTITION BY STN_ID ORDER BY TM_ED DESC ) rnk FROM STN_AWS S ) WHERE RNK = 1 ) S WHERE TO_CHAR(T.TM,'YYYYMMDD') = '2021124' AND T.STN_ID = S.STN_ID AND TA_MAX IS NOT NULL ) WHERE TNRW <= 30 ORDER BY TNRW ;
 ```
-output URL: `일기도_위험기상?동적선택1=당일(2021년)&동적선택2=최하층 기온&동적버튼1=KIM전구&정적입력1='202101240000`
+
+output URL: 
+
+`일기도_위험기상?동적선택1=당일(2021년)&동적선택2=최하층 기온&동적버튼1=KIM전구&정적입력1='202101240000`
 
 - [advanced rest client](https://chrome.google.com/webstore/detail/advanced-rest-client/hgmloofddffdnphfgcellkdfbfbjeloo/related) 를 이용해 정상 동작 여부를 확인하였습니다.
