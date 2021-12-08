@@ -46,3 +46,8 @@ output URL:
 `일기도_위험기상?동적선택1=당일(2021년)&동적선택2=최하층 기온&동적버튼1=KIM전구&정적입력1='202101240000`
 
 - [advanced rest client](https://chrome.google.com/webstore/detail/advanced-rest-client/hgmloofddffdnphfgcellkdfbfbjeloo/related) 를 이용해 정상 동작 여부를 확인하였습니다.
+
+## 인수인계
+
+ [transition.docx](transition.docx) (pdf version: [transition.pdf](transition.pdf))에 인수인계 관련 document를 추가해두었습니다.
+
