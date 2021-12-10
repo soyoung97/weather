@@ -19,6 +19,8 @@ sudo docker run -d -p 8887:8887 --gpus all msyoon8/weather:latest python3 home/K
 - GET 형태 url 예시: `http://20.98.84.235:8882/api/search/text?source=2021 강수확률 가장 높은 날&date=2021-10-18 00:00:00`
 ## Example
 
+#### 예제1
+
 ![ex1](./ex1.png)
 input: 전기간 전지점 일단위 최고온도 3개
 
@@ -30,21 +32,35 @@ SELECT * FROM ( SELECT TO_CHAR(T.tm,'YYYYMMDD')|| ' ' ||TO_CHAR(T.TA_MAX_TM ,'00
 
 output URL: `일기도_위험기상?동적선택1=전지구모델비교&동적선택2=KLAPS&동적버튼1=KIM전구&정적입력='202101240000`
 
+output from sample DB: (encoding문제로 한국어 깨져보임)
+
+![out1](./out1.png)
+
+
+
+-----------------
+
+#### 예제2
 
 
 ![ex2](./ex2.png)
 
-input: 당일(2021년 1월 24일) 전지점 일단위 최고온도 30개
+input: 당일(2021년 2월 13일) 전지점 일단위 최고온도 30개
 
 output SQL: 
 
 ``` SQL
-SELECT * FROM ( SELECT TO_CHAR(T.tm,'YYYYMMDD')|| ' ' ||TO_CHAR(T.TA_MAX_TM ,'0000') AS 관측시각 ,S. STN_KO , S.STN_ID , TA_MAX AS 기온 , DENSE_RANK() OVER ( ORDER BY TA_MAX desc) TNRW FROM SFC_DAY_TA T , ( SELECT * FROM ( SELECT S.* ,ROW_NUMBER() OVER (PARTITION BY STN_ID ORDER BY TM_ED DESC ) rnk FROM STN_AWS S ) WHERE RNK = 1 ) S WHERE TO_CHAR(T.TM,'YYYYMMDD') = '20210124' AND T.STN_ID = S.STN_ID AND TA_MAX IS NOT NULL ) WHERE TNRW <= 30 ORDER BY TNRW ;
+SELECT * FROM ( SELECT TO_CHAR(T.tm,'YYYYMMDD')|| ' ' ||TO_CHAR(T.TA_MAX_TM ,'0000') AS 관측시각 ,S. STN_KO , S.STN_ID , TA_MAX AS 기온 , DENSE_RANK() OVER ( ORDER BY TA_MAX desc) TNRW FROM SFC_DAY_TA T , ( SELECT * FROM ( SELECT S.* ,ROW_NUMBER() OVER (PARTITION BY STN_ID ORDER BY TM_ED DESC ) rnk FROM STN_AWS S ) WHERE RNK = 1 ) S WHERE TO_CHAR(T.TM,'YYYYMMDD') = '20210213' AND T.STN_ID = S.STN_ID AND TA_MAX IS NOT NULL ) WHERE TNRW <= 30 ORDER BY TNRW;
 ```
 
 output URL: 
 
-`일기도_위험기상?동적선택1=당일(2021년)&동적선택2=최하층 기온&동적버튼1=KIM전구&정적입력1='202101240000`
+`일기도_위험기상?동적선택1=당일(2021년 )&동적선택2=최하층 기온&동적버튼2=UM전구&정적입력1='202102130000'`
+
+output from sample DB:
+
+![out2](./out2.png)
+
 
 - [advanced rest client](https://chrome.google.com/webstore/detail/advanced-rest-client/hgmloofddffdnphfgcellkdfbfbjeloo/related) 를 이용해 정상 동작 여부를 확인하였습니다.
 
